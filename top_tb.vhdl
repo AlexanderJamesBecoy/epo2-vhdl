@@ -1,127 +1,60 @@
---------------------------------------------------------------------------------
--- Company: 
--- Engineer:
---
--- Create Date:   17:24:48 04/30/2019
--- Design Name:   
--- Module Name:   C:/Users/dstijns/EPO2/top_tb.vhd
--- Project Name:  EPO2
--- Target Device:  
--- Tool versions:  
--- Description:   
--- 
--- VHDL Test Bench Created by ISE for module: top
--- 
--- Dependencies:
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
---
--- Notes: 
--- This testbench has been automatically generated using types std_logic and
--- std_logic_vector for the ports of the unit under test.  Xilinx recommends
--- that these types always be used for the top-level I/O of a design in order
--- to guarantee that the testbench will bind correctly to the post-implementation 
--- simulation model.
---------------------------------------------------------------------------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.ALL;
- 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---USE ieee.numeric_std.ALL;
- 
-ENTITY top_tb IS
-END top_tb;
- 
-ARCHITECTURE behavior OF top_tb IS 
- 
-    -- Component Declaration for the Unit Under Test (UUT)
- 
-    COMPONENT top
-    PORT(
-         clk : IN  std_logic;
-         reset : IN  std_logic;
-         sensor : IN  std_logic_vector(2 downto 0);
-         lmotor : OUT  std_logic;
-         rmotor : OUT  std_logic;
-         tx : OUT  std_logic;
-         rx : IN  std_logic;
-         sw : IN  std_logic_vector(7 downto 0);
-         btn : IN  std_logic_vector(1 downto 0);
-         led : OUT  std_logic_vector(7 downto 0);
-         an : OUT  std_logic_vector(3 downto 0);
-         sseg : OUT  std_logic_vector(7 downto 0)
-        );
-    END COMPONENT;
-    
+library ieee;
+use ieee.std_logic_1164.all;
 
-   --Inputs
-   signal clk : std_logic := '0';
-   signal reset : std_logic := '0';
-   signal sensor : std_logic_vector(2 downto 0) := (others => '0');
-   signal rx : std_logic := '0';
-   signal sw : std_logic_vector(7 downto 0) := (others => '0');
-   signal btn : std_logic_vector(1 downto 0) := (others => '0');
+entity top_tb is
+end;
 
- 	--Outputs
-   signal lmotor : std_logic;
-   signal rmotor : std_logic;
-   signal tx : std_logic;
-   signal led : std_logic_vector(7 downto 0);
-   signal an : std_logic_vector(3 downto 0);
-   signal sseg : std_logic_vector(7 downto 0);
-
-   -- Clock period definitions
-   constant clk_period : time := 20 ns;
- 
-BEGIN
- 
-	-- Instantiate the Unit Under Test (UUT)
-   uut: top PORT MAP (
-          clk => clk,
-          reset => reset,
-          sensor => sensor,
-          lmotor => lmotor,
-          rmotor => rmotor,
-          tx => tx,
-          rx => rx,
-          sw => sw,
-          btn => btn,
-          led => led,
-          an => an,
-          sseg => sseg
-        );
-
-   -- Clock process definitions
-   clk_process :process
-   begin
+architecture beh of top_tb is
+signal clk,reset: std_logic;
+signal sensor: std_logic_vector(2 downto 0);
+signal lmotor,rmotor,tx,rx,mine: std_logic;
+signal sw: std_logic_vector(7 downto 0);
+signal btn : std_logic_vector(1 downto 0);
+signal led : std_logic_vector(7 downto 0);
+signal an : std_logic_vector(3 downto 0);
+signal sseg : std_logic_vector(7 downto 0);
+begin
+	uut: entity work.top
+		port map(clk,reset,sensor,lmotor,rmotor,tx,rx,mine,sw,btn,led,an,sseg);
+	clk_tick: process
+	begin
 		clk <= '0';
-		wait for clk_period/2;
+		wait for 10 ns;
 		clk <= '1';
-		wait for clk_period/2;
-   end process;
- 
+		wait for 10 ns;
+	end process;
 
-   -- Stimulus process
-   stim_proc: process
-   begin		
-      -- hold reset state for 100 ns.
+	stim: process
+	begin
 		reset <= '1';
-      wait for 100 ns;	
+		wait for 100 ns;
 		reset <= '0';
-
-      wait for clk_period*10;
-
-      -- insert stimulus here 
-		sensor <= "000";
-		wait for 1 ms;
-		sensor <= "100";
-		wait for 30 ms;
 		sensor <= "010";
 
-      wait;
-   end process;
+		--S=01010011
+		rx <= '0'; --start bit
+		wait for 104 us; -- 1/9600 seconds
+		rx <= '0';
+		wait for 104 us; -- 1/9600 seconds
+		rx <= '1';
+		wait for 104 us; -- 1/9600 seconds
+		rx <= '0';
+		wait for 104 us; -- 1/9600 seconds
+		rx <= '1';
+		wait for 104 us; -- 1/9600 seconds
+		rx <= '0';
+		wait for 104 us; -- 1/9600 seconds
+		rx <= '0';
+		wait for 104 us; -- 1/9600 seconds
+		rx <= '1';
+		wait for 104 us; -- 1/9600 seconds
+		rx <= '1';
+		wait for 104 us; -- 1/9600 seconds
+		rx <= '1'; --stop bit
+		wait for 104 us; -- 1/9600 seconds
+		wait;
+	end process;
 
-END;
+
+end beh;
+
