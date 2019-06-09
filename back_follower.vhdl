@@ -11,14 +11,9 @@ entity back_follower is
 		sensor_m		: in	std_logic;
 		sensor_r		: in	std_logic;
 
-		count_in		: in	std_logic_vector (19 downto 0);
-		count_reset		: out	std_logic;
-
-		motor_l_reset		: out	std_logic;
 		motor_l_move	   : out std_logic;
 		motor_l_direction	: out	std_logic;
 
-		motor_r_reset		: out	std_logic;
 		motor_r_move	   : out std_logic;
 		motor_r_direction	: out	std_logic
 	);
@@ -35,21 +30,10 @@ begin
 	seq : process
 	begin
 		wait until rising_edge(clk);
-		motor_l_reset <= '0';
-		motor_r_reset <= '0';
-		count_reset <= '0';
 		
 		if (reset = '1') then
 			heading <= stop;
-		motor_l_reset <= '1';
-		motor_r_reset <= '1';
-		count_reset <= '1';
 		else
-			if(unsigned(count_in) = 1000000) then
-				motor_l_reset <= '1';
-				motor_r_reset <= '1';
-				count_reset <= '1';
-			end if;
 			heading <= nextheading;
 		end if;
 	end process;
