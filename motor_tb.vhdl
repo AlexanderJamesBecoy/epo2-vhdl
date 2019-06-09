@@ -44,8 +44,8 @@ ARCHITECTURE behavior OF motor_tb IS
     PORT(
          clk : IN  std_logic;
          reset : IN  std_logic;
-         direction : IN  std_logic;
          motor_move : IN  std_logic;
+         direction : IN  std_logic;
          count_in : IN  std_logic_vector(19 downto 0);
          pwm : OUT  std_logic
         );
@@ -71,8 +71,8 @@ BEGIN
    uut: motorcontrol PORT MAP (
           clk => clk,
           reset => reset,
-          direction => direction,
           motor_move => motor_move,
+          direction => direction,
           count_in => count_in,
           pwm => pwm
         );
