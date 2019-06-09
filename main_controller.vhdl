@@ -7,7 +7,7 @@ entity main_controller is
 		clk,reset: in std_logic;
 		motor_drive: out std_logic_vector(2 downto 0);
 		-- "000" = stop "001" = line_follower "010" = back_follower
-		-- "100" = back "101" = rotate_left "110" = rotate_right
+		-- "011" = back "100" = rotate_left "101" = rotate_right
 		uart_response: out std_logic_vector(1 downto 0);
 		-- "00" = B "01" = C "10" = M
 		uart_send, time_start: out std_logic;
@@ -52,13 +52,13 @@ begin
 	"001010010000" when line_follow,
 	"001100010000" when line_follow_till_white,
 	"001110100000" when back_follow,
-	"010000010000" when line_follow_timeout,
-	"010010100000" when back_till_white,
-	"010100100000" when back_till_black,
-	"010111010000" when left_till_time,
-	"011001010000" when left_till_black,
-	"011011100000" when right_till_time,
-	"011101100000" when right_till_black,
+	"010000100000" when line_follow_timeout,
+	"010010110000" when back_till_white,
+	"010100110000" when back_till_black,
+	"010111000000" when left_till_time,
+	"011001000000" when left_till_black,
+	"011011010000" when right_till_time,
+	"011101010000" when right_till_black,
 	"011110000001" when time_line,
 	"100000000001" when time_rot,
 	"100010000000" when stop_till_u,
