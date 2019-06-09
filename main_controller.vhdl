@@ -13,7 +13,7 @@ entity main_controller is
 		uart_send: out std_logic;
 
 		uart_rec: in std_logic_vector(1 downto 0);
-		-- "00" = S "01" = L "10" = R "11" = S
+		-- "00" = S "01" = L "10" = R "11" = U
 		line_sense: in std_logic_vector(2 downto 0);
 		-- left is MSB
 		mine_sense, uart_avail, timeout: in std_logic
@@ -31,10 +31,12 @@ type statetype is ( send_B, send_M, send_C, send_C_after_stop,
 	read);
 
 signal state, nextstate: statetype;
-signal a_black, a_white: std_logic; -- flags for control
+signal a_black, all_black, a_white, all_white: std_logic; -- flags for control
 begin
-	a_black <= not( line_sense(0) and line_sense(1) and line_sense(2));
+	a_black <= not(line_sense(0) and line_sense(1) and line_sense(2));
+	all_black <= (not line_sense(0)) and (not line_sense(0)) and (not line_sense(0))
 	a_white <= line_sense(0) or line_sense(1) or line_sense(2);
+	all_white <= line_sense(0) and line_sense(1) and line_sense(2);
 
 	seq: process
 	begin
@@ -44,6 +46,50 @@ begin
 		else
 			state <= nextstate;
 		end if;
+	end process;
+
+	comb: process(state,uart_rec,line_sense,mine_sense,uart_avail,timeout)
+	begin
+	-- default is stay in your state
+	nextstate <= state;
+	case state is
+	when send_B => if(uart_avail = '1') then nextstate <= line_follow; end if;
+	when send_M => nextstate <= back_till_white;
+	when send_C => 
+		case uart_rec is
+		when "00" =>  nextstate <= line_follow; --S
+		when "01" =>  nextstate <= time_line; --L
+		when "10" =>  nextstate <= line_line; --R
+		when "11" =>  nextstate <= back_till_white; --U
+		end case;
+	when send_C_after_stop => nextstate <= back_till_black;
+	when line_follow => 
+		if(mine_sense = '1') then nextstate <= send_M;
+		elsif(all_white = '1') then nextstate <= stop_till_U ;
+		elsif(all_black = '1') then nextstate <= read; 
+		end if;
+	when line_follow_till_white => if(a_white) then nextstate <= line_follow; end if;
+	when back_follow => if(all_black = '1') then nextstate <= read; end if;
+	when line_follow_timeout => if(timeout = '1') then nextstate <= read; end if;
+	when back_till_white => if(a_white = '1') then nextstate <= back_follow; end if;
+	when back_till_black => if(a_black = '1') then nextstate <= back_follow; end if;
+	when left_till_time => if(timeout = '1') then nextstate <= left_till_black; end if;
+	when left_till_black => if(a_black = '1') then nextstate <= line_follow; end if;
+	when right_till_time => if(timeout = '1') then nextstate <= right_till_black; end if;
+	when right_till_black => if(a_black = '1') then nextstate <= line_follow; end if;
+	when time_line => nextstate <= line_follow_timeout;
+	when time_rot => 
+		case uart_rec is
+		when "01" =>  nextstate <= left_till_time; --L
+		when "10" =>  nextstate <= right_till_time; --R
+		end case;
+	when stop_till_u =>
+		if(uart_avail = '1' and uart_rec = "11") --U
+		then nextstate <= send_C_after_stop; 
+		end if;
+	when stop_forever => nextstate <= stop_forever; --Only way out is a reset
+	when read => if(uart_avail = '1') then nextstate <= send_C; end if;
+	end case
 	end process;
 
 end behaviour;		
