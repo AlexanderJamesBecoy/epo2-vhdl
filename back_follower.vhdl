@@ -6,16 +6,11 @@ use ieee.numeric_std.all;
 entity back_follower is
 	port (	clk			: in	std_logic;
 		reset			: in	std_logic;
+		sensorvect 	: in	std_logic_vector(2 downto 0);
+		--MSB is left
+		motorvect	: out	std_logic_vector(3 downto 0)
+		-- 4=left-direction 3=left-move 2=right-direction 1=right-move
 
-		sensor_l		: in	std_logic;
-		sensor_m		: in	std_logic;
-		sensor_r		: in	std_logic;
-
-		motor_l_move	   : out std_logic;
-		motor_l_direction	: out	std_logic;
-
-		motor_r_move	   : out std_logic;
-		motor_r_direction	: out	std_logic
 	);
 			
 			
@@ -24,8 +19,6 @@ end entity back_follower;
 architecture behaviour of back_follower is
 type headingtype is (left, right, hardleft, hardright, straight, stop);
 signal heading, nextheading : headingtype;
-signal motorvect : std_logic_vector(3 downto 0);
-signal sensorvect : std_logic_vector(2 downto 0);
 begin
 	seq : process
 	begin
@@ -116,21 +109,14 @@ begin
 	end if;
 	end process;
 	
-	sensorvect(0) <= sensor_l;
-	sensorvect(1) <= sensor_m;
-	sensorvect(2) <= sensor_r;
-	
 	with heading select motorvect <=
-		"1010" when straight,
-		"0010" when left,
-		"1000" when right,
-		"1011" when hardleft,
-		"1110" when hardright,
-		"0000" when stop,
-		"0000" when others;
-		
-	motor_l_move <= motorvect(0);
-	motor_l_direction <= motorvect(1);
-	motor_r_move <= motorvect(2);
-	motor_r_direction <= not motorvect(3);
+		"1000" when straight,
+		"-011" when left,
+		"10-1" when right,
+		"0111" when hardleft,
+		"1101" when hardright,
+		"-0-0" when stop,
+		"-0-0" when others;
+	--N.B. due to the robot's design, right_direction is inverted
+	-- 4=left-direction 3=left-move 2=right-direction 1=right-move
 end behaviour;
