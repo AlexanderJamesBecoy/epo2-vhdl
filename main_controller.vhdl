@@ -10,7 +10,7 @@ entity main_controller is
 		-- "100" = back "101" = rotate_left "110" = rotate_right
 		uart_response: out std_logic_vector(1 downto 0);
 		-- "00" = B "01" = C "10" = M
-		uart_send: out std_logic;
+		uart_send, time_start: out std_logic;
 
 		uart_rec: in std_logic_vector(2 downto 0);
 		-- "000" = S "001" = L "010" = R "011" = U "100" = Q
@@ -32,7 +32,7 @@ type statetype is ( send_B, send_M, send_C, send_C_after_stop,
 
 signal state, nextstate: statetype;
 signal a_black, all_black, a_white, all_white: std_logic; -- flags for control
-signal control_v: std_logic_vector(5 downto 0);
+signal control_v: std_logic_vector(6 downto 0);
 begin
 	-- flags
 	a_black <= not(line_sense(0) and line_sense(1) and line_sense(2));
@@ -42,9 +42,27 @@ begin
 
 	-- output
 	with state select control_v <=
-		"000000" when others;
-
-	(motor_drive(2), motor_drive(1), motor_drive(0), uart_response(1), uart_response(0), uart_send) <= control_v;
+	"0000010" when send_B,
+	"0001010" when send_M,
+	"0000110" when send_C,
+	"0000110" when send_C_after_stop,
+	"0010000" when line_follow,
+	"0010000" when line_follow_till_white,
+	"0100000" when back_follow,
+	"0010000" when line_follow_timeout,
+	"0100000" when back_till_white,
+	"0100000" when back_till_black,
+	"1010000" when left_till_time,
+	"1010000" when left_till_black,
+	"1100000" when right_till_time,
+	"1100000" when right_till_black,
+	"0000001" when time_line,
+	"0000001" when time_rot,
+	"0000000" when stop_till_u,
+	"0000000" when stop_forever,
+	"0000000" when read;
+	
+	(motor_drive(2), motor_drive(1), motor_drive(0), uart_response(1), uart_response(0), uart_send, time_start) <= control_v;
 
 	-- FSM
 	seq: process
