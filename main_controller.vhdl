@@ -87,7 +87,7 @@ begin
 	when send_M => nextstate <= back_till_white;
 	when send_C => 
 		case uart_rec is
-		when "000" =>  nextstate <= line_follow; --S
+		when "000" =>  nextstate <= line_follow_till_white; --S
 		when "001" =>  nextstate <= time_line; --L
 		when "010" =>  nextstate <= time_line; --R
 		when "011" =>  nextstate <= back_till_white; --U
@@ -97,7 +97,7 @@ begin
 	when send_C_after_stop => nextstate <= back_till_black;
 	when line_follow => 
 		if(mine_sense = '1') then nextstate <= send_M;
-		elsif(all_white = '1') then nextstate <= stop_till_U ;
+		elsif(all_white = '1') then nextstate <= stop_till_u;
 		elsif(all_black = '1') then nextstate <= read; 
 		end if;
 	when line_follow_till_white => if(a_white = '1') then nextstate <= line_follow; end if;
@@ -117,11 +117,11 @@ begin
 		when others => nextstate <= state;
 		end case;
 	when stop_till_u =>
-		if(uart_avail = '1' and uart_rec = "11") --U
+		if(uart_rec = "011") --U
 		then nextstate <= send_C_after_stop; 
 		end if;
 	when stop_forever => nextstate <= stop_forever; --Only way out is a reset
-	when read => if(uart_avail = '1') then nextstate <= send_C; end if;
+	when read => nextstate <= send_C;
 	end case;
 	end process;
 
