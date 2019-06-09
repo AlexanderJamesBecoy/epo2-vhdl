@@ -44,16 +44,22 @@ begin
 		-- Move left
 		wait for 1 us;
 		timeout <= '1';
+		wait for 1 us;
 		line_sense <= "101";
 		wait for 20 ns;
 		timeout <= '0';
 
+		--- stop due to white
 		wait for 1 us;
 		line_sense <= "111";
+		wait for 1 us;
+		uart_rec <= "011"; --U
+		wait for 1 us;
 		timeout <= '1';
 		wait for 20 ns;
 		timeout <= '0';
 
+		-- move backwards
 		wait for 1 us;
 		line_sense <= "110";
 
