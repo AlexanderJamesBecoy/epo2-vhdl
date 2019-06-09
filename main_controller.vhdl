@@ -42,9 +42,9 @@ begin
 
 	-- output
 	with state select control_v <=
-		"00000" when others;
+		"000000" when others;
 
-	(motor_drive, uart_response, uart_rec) <= control_v;
+	(motor_drive(2), motor_drive(1), motor_drive(0), uart_response(1), uart_response(0), uart_send) <= control_v;
 
 	-- FSM
 	seq: process
@@ -68,9 +68,10 @@ begin
 		case uart_rec is
 		when "000" =>  nextstate <= line_follow; --S
 		when "001" =>  nextstate <= time_line; --L
-		when "010" =>  nextstate <= line_line; --R
+		when "010" =>  nextstate <= time_line; --R
 		when "011" =>  nextstate <= back_till_white; --U
 		when "100" =>  nextstate <= stop_forever; --Q
+		when others => nextstate <= state;
 		end case;
 	when send_C_after_stop => nextstate <= back_till_black;
 	when line_follow => 
@@ -78,7 +79,7 @@ begin
 		elsif(all_white = '1') then nextstate <= stop_till_U ;
 		elsif(all_black = '1') then nextstate <= read; 
 		end if;
-	when line_follow_till_white => if(a_white) then nextstate <= line_follow; end if;
+	when line_follow_till_white => if(a_white = '1') then nextstate <= line_follow; end if;
 	when back_follow => if(all_black = '1') then nextstate <= read; end if;
 	when line_follow_timeout => if(timeout = '1') then nextstate <= read; end if;
 	when back_till_white => if(a_white = '1') then nextstate <= back_follow; end if;
@@ -90,8 +91,9 @@ begin
 	when time_line => nextstate <= line_follow_timeout;
 	when time_rot => 
 		case uart_rec is
-		when "01" =>  nextstate <= left_till_time; --L
-		when "10" =>  nextstate <= right_till_time; --R
+		when "001" =>  nextstate <= left_till_time; --L
+		when "010" =>  nextstate <= right_till_time; --R
+		when others => nextstate <= state;
 		end case;
 	when stop_till_u =>
 		if(uart_avail = '1' and uart_rec = "11") --U
