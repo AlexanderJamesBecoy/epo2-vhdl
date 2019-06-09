@@ -12,8 +12,8 @@ entity main_controller is
 		-- "00" = B "01" = C "10" = M
 		uart_send: out std_logic;
 
-		uart_rec: in std_logic_vector(1 downto 0);
-		-- "00" = S "01" = L "10" = R "11" = U
+		uart_rec: in std_logic_vector(2 downto 0);
+		-- "000" = S "001" = L "010" = R "011" = U "100" = Q
 		line_sense: in std_logic_vector(2 downto 0);
 		-- left is MSB
 		mine_sense, uart_avail, timeout: in std_logic
@@ -32,12 +32,21 @@ type statetype is ( send_B, send_M, send_C, send_C_after_stop,
 
 signal state, nextstate: statetype;
 signal a_black, all_black, a_white, all_white: std_logic; -- flags for control
+signal control_v: std_logic_vector(5 downto 0);
 begin
+	-- flags
 	a_black <= not(line_sense(0) and line_sense(1) and line_sense(2));
-	all_black <= (not line_sense(0)) and (not line_sense(0)) and (not line_sense(0))
+	all_black <= (not line_sense(0)) and (not line_sense(0)) and (not line_sense(0));
 	a_white <= line_sense(0) or line_sense(1) or line_sense(2);
 	all_white <= line_sense(0) and line_sense(1) and line_sense(2);
 
+	-- output
+	with state select control_v <=
+		"00000" when others;
+
+	(motor_drive, uart_response, uart_rec) <= control_v;
+
+	-- FSM
 	seq: process
 	begin
 		wait until rising_edge(clk);
@@ -57,10 +66,11 @@ begin
 	when send_M => nextstate <= back_till_white;
 	when send_C => 
 		case uart_rec is
-		when "00" =>  nextstate <= line_follow; --S
-		when "01" =>  nextstate <= time_line; --L
-		when "10" =>  nextstate <= line_line; --R
-		when "11" =>  nextstate <= back_till_white; --U
+		when "000" =>  nextstate <= line_follow; --S
+		when "001" =>  nextstate <= time_line; --L
+		when "010" =>  nextstate <= line_line; --R
+		when "011" =>  nextstate <= back_till_white; --U
+		when "100" =>  nextstate <= stop_forever; --Q
 		end case;
 	when send_C_after_stop => nextstate <= back_till_black;
 	when line_follow => 
@@ -89,7 +99,7 @@ begin
 		end if;
 	when stop_forever => nextstate <= stop_forever; --Only way out is a reset
 	when read => if(uart_avail = '1') then nextstate <= send_C; end if;
-	end case
+	end case;
 	end process;
 
 end behaviour;		
