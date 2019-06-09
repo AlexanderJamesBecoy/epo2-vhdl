@@ -11,6 +11,7 @@ entity main_controller is
 		uart_response: out std_logic_vector(1 downto 0);
 		-- "00" = B "01" = C "10" = M
 		uart_send, time_start: out std_logic;
+		state_out : out std_logic_vector(4 downto 0); -- for led output
 
 		uart_rec: in std_logic_vector(2 downto 0);
 		-- "000" = S "001" = L "010" = R "011" = U "100" = Q
@@ -32,7 +33,7 @@ type statetype is ( send_B, send_M, send_C, send_C_after_stop,
 
 signal state, nextstate: statetype;
 signal a_black, all_black, a_white, all_white: std_logic; -- flags for control
-signal control_v: std_logic_vector(6 downto 0);
+signal control_v: std_logic_vector(11 downto 0);
 begin
 	-- flags
 	a_black <= not(line_sense(0) and line_sense(1) and line_sense(2));
@@ -42,27 +43,29 @@ begin
 
 	-- output
 	with state select control_v <=
-	"0000010" when send_B,
-	"0001010" when send_M,
-	"0000110" when send_C,
-	"0000110" when send_C_after_stop,
-	"0010000" when line_follow,
-	"0010000" when line_follow_till_white,
-	"0100000" when back_follow,
-	"0010000" when line_follow_timeout,
-	"0100000" when back_till_white,
-	"0100000" when back_till_black,
-	"1010000" when left_till_time,
-	"1010000" when left_till_black,
-	"1100000" when right_till_time,
-	"1100000" when right_till_black,
-	"0000001" when time_line,
-	"0000001" when time_rot,
-	"0000000" when stop_till_u,
-	"0000000" when stop_forever,
-	"0000000" when read;
+	"000010000010" when send_B,
+	"000100001010" when send_M,
+	"000110000110" when send_C,
+	"001000000110" when send_C_after_stop,
+	"001010010000" when line_follow,
+	"001100010000" when line_follow_till_white,
+	"001110100000" when back_follow,
+	"010000010000" when line_follow_timeout,
+	"010010100000" when back_till_white,
+	"010100100000" when back_till_black,
+	"010111010000" when left_till_time,
+	"011001010000" when left_till_black,
+	"011011100000" when right_till_time,
+	"011101100000" when right_till_black,
+	"011110000001" when time_line,
+	"100000000001" when time_rot,
+	"100010000000" when stop_till_u,
+	"100100000000" when stop_forever,
+	"100110000000" when read;
 	
-	(motor_drive(2), motor_drive(1), motor_drive(0), uart_response(1), uart_response(0), uart_send, time_start) <= control_v;
+	(state_out(4), state_out(3), state_out(2), state_out(1), state_out(0),
+	motor_drive(2), motor_drive(1), motor_drive(0),
+	uart_response(1), uart_response(0), uart_send, time_start) <= control_v;
 
 	-- FSM
 	seq: process
