@@ -1,33 +1,5 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    14:21:38 04/26/2019 
--- Design Name: 
--- Module Name:    top - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
---
--- Dependencies: 
---
--- Revision: 
--- Revision 0.01 - File Created
--- Additional Comments: 
---
-----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity top is
 	port ( clk : in std_logic;
@@ -36,6 +8,7 @@ entity top is
 	       lmotor, rmotor : out std_logic;
 			 tx : out std_logic;
 			 rx : in std_logic;
+			 mine : in std_logic;
 			 sw : in std_logic_vector(7 downto 0);
 			 btn : in std_logic_vector(1 downto 0);
 			 led : out std_logic_vector(7 downto 0);
@@ -45,25 +18,74 @@ entity top is
 end top;
 
 architecture structural of top is
-signal tcount : std_logic_vector(19 downto 0);
-signal linel, linem, liner : std_logic;
-signal motor_l_rst, motor_l_dir, motor_l_mov : std_logic;
-signal motor_r_rst, motor_r_dir, motor_r_mov : std_logic;
-signal timebase_rst : std_logic;
+signal line: std_logic_vector(2 downto 0);
+signal md: std_logic_vector(2 downto 0);
+signal mines, ctbr, mrtbr, mltbr, wu, rdu, au: std_logic;
+signal ru, tu: std_logic_vector(7 downto 0);
+signal rdec: std_logic_vector(2 downto 0);
+signal tenc: std_logic_vector(1 downto 0);
+signal bfm, lfm, m: std_logic_vector(3 downto 0);
+signal ml, mr: std_logic_vector(1 downto 0);
+signal mltb, mrtb: std_logic_vector(19 downto 0);
+signal ctb: std_logic_vector(28 downto 0);
+signal state: std_logic_vector(4 downto 0);
 begin
-	timebase : entity work.timebase
-		port map(clk, timebase_rst, tcount);
-	linebuff : entity work.inputbuffer
-		port map(clk, reset, sensor(2), sensor(1), sensor(0), linel, linem, liner);
-	motor_l : entity work.motorcontrol
-		port map(clk, motor_l_rst, motor_l_dir, motor_l_mov, tcount, lmotor);
-	motor_r : entity work.motorcontrol
-		port map(clk, motor_r_rst, motor_r_dir, motor_r_mov, tcount, rmotor);
-	line_follower : entity work.line_follower
-		port map(clk, reset, linel, linem, liner, tcount, timebase_rst, motor_l_rst, motor_l_mov, motor_l_dir, motor_r_rst, motor_r_mov, motor_r_dir);
+	linebuff: entity work.inputbuffer
+		generic map(3)
+		port map(clk,reset,sensor,line);
 	
-	led <= (0 => tcount(19), 1 => linel, 2 => linem, 3 => liner, others => '1');
-	tx <= '0';
+	minebuf: entity work.inputbuffer1
+		port map(clk,reset,mine,mines);
+	
+	bfollow: entity work.back_follower
+		port map(clk,reset,line,bfm);
+
+	lfollow: entity work.line_follower
+		port map(clk,reset,line,lfm);
+	
+	uart: entity work.uart
+		port map(clk,reset,rx,tx,tu,ru,wu,au);
+	
+	uart_dec: entity work.inst_decode
+		port map(ru,rdec);
+
+	uart_enc: entity work.resp_encode
+		port map(tenc,tu);
+	
+	motormux: entity work.mux8
+		generic map(4)
+		port map("0000",lfm,bfm,"1010","1110","1011","0000","0000",md,m);
+		-- "000" = stop "001" = line_follower "010" = back_follower
+		-- "011" = back "100" = rotate_left "101" = rotate_right
+
+	motorl: entity work.motorcontrol
+		port map(clk,reset,ml,mltb,mltbr,lmotor);
+
+	motorr: entity work.motorcontrol
+		port map(clk,reset,mr,mrtb,mrtbr,rmotor);
+	
+	ml <= m(3 downto 2);
+	mr <= m(1 downto 0);
+
+	ml_tb: entity work.timebase
+		generic map(20)
+		port map(clk,mltbr,mltb);
+
+	mr_tb: entity work.timebase
+		generic map(20)
+		port map(clk,mrtbr,mrtb);
+	
+	ct_tb: entity work.timebase
+		generic map(29)
+		port map(clk,ctbr,ctb);
+	
+	mc: entity work.main_controller
+		port map(clk,reset,md,tenc,wu,ctbr,state,rdec,line,mines,au,ctb);
+	
+	rdu <= '0'; -- controller doesn't care about the flag
+
+
+	led <= state & "000";
 	an <= (others => '0');
 	sseg <= (others => '0');
 end structural;
