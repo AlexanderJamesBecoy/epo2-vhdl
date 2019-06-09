@@ -104,16 +104,10 @@ BEGIN
 		motor_move <= '1';
 		
 		wait for 20 ms;
-		reset <= '1';
-      wait for 100 ns;	
-		reset <= '0';
 		direction <= '0';
 		motor_move <= '1';
 		
 		wait for 20 ms;
-		reset <= '1';
-      wait for 100 ns;	
-		reset <= '0';
 		direction <= '0';
 		motor_move <= '0';
 
