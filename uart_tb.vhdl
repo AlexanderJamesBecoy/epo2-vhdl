@@ -28,29 +28,31 @@ begin
 		write_data <= '1';
 		read_data <= '1'; 
 
-		rx <= '0';
-		wait for 104 us;
-
-		rx <= '0';
-		wait for 104 us;
-		rx <= '1';
-		wait for 104 us;
-		rx <= '1';
-		wait for 104 us;
-		rx <= '0';
-		wait for 104 us;
-		rx <= '1';
-		wait for 104 us;
-		rx <= '0';
-		wait for 104 us;
-		rx <= '0';
-		wait for 104 us;
-		rx <= '1';
-
-		wait for 104 us;
-		rx <= '1';
-
+		wait for 20 ns;
 		write_data <= '0';
+
+		rx <= '0';
+		wait for 104 us; --1/9600 seconds
+
+		rx <= '0';
+		wait for 104 us;
+		rx <= '1';
+		wait for 104 us;
+		rx <= '1';
+		wait for 104 us;
+		rx <= '0';
+		wait for 104 us;
+		rx <= '1';
+		wait for 104 us;
+		rx <= '0';
+		wait for 104 us;
+		rx <= '0';
+		wait for 104 us;
+		rx <= '1';
+
+		wait for 104 us;
+		rx <= '1';
+
 		read_data <= '0';
 
 		wait for 200 us;
