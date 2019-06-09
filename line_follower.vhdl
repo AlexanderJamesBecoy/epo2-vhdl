@@ -11,11 +11,9 @@ entity line_follower is
 		sensor_m		: in	std_logic;
 		sensor_r		: in	std_logic;
 
-		motor_l_reset		: out	std_logic;
 		motor_l_move	   : out std_logic;
 		motor_l_direction	: out	std_logic;
 
-		motor_r_reset		: out	std_logic;
 		motor_r_move	   : out std_logic;
 		motor_r_direction	: out	std_logic
 	);
@@ -32,14 +30,9 @@ begin
 	seq : process
 	begin
 		wait until rising_edge(clk);
-		motor_l_reset <= '0';
-		motor_r_reset <= '0';
-		count_reset <= '0';
 		
 		if (reset = '1') then
 			heading <= stop;
-		motor_l_reset <= '1';
-		motor_r_reset <= '1';
 		else
 			heading <= nextheading;
 		end if;
