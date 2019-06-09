@@ -46,8 +46,6 @@ ARCHITECTURE behavior OF controller_tb IS
          sensor_l : IN  std_logic;
          sensor_m : IN  std_logic;
          sensor_r : IN  std_logic;
-         count_in : IN  std_logic_vector(19 downto 0);
-         count_reset : OUT  std_logic;
          motor_l_reset : OUT  std_logic;
          motor_l_move : OUT  std_logic;
          motor_l_direction : OUT  std_logic;
