@@ -6,8 +6,8 @@ use ieee.numeric_std.all;
 entity motorcontrol is
 	port (	clk		: in	std_logic;
 		reset		: in	std_logic;
-		direction	: in	std_logic;
-		motor_move : in std_logic;
+		motorvect : in std_logic_vector(1 downto 0);
+		--2=direction 1=move
 		count_in	: in	std_logic_vector (19 downto 0);
 		count_rst	: out	std_logic;
 
@@ -36,14 +36,14 @@ begin
 	when pwm_on =>
 		pwm <= '1';
 		next_state <= pwm_on;
-		if(motor_move = '0') then
+		if(motorvect(0) = '0') then
 			if(unsigned(count_in) = 75000) then
 				next_state <= pwm_off;
 			end if;
 		else
-			if(direction = '0' and unsigned(count_in) = 50000) then
+			if(motorvect(1) = '0' and unsigned(count_in) = 50000) then
 				next_state <= pwm_off;
-			elsif(direction = '1' and unsigned(count_in) = 100000) then
+			elsif(motorvect(1) = '1' and unsigned(count_in) = 100000) then
 				next_state <= pwm_off;
 			end if;
 		end if;
