@@ -47,6 +47,7 @@ begin
 
 		-- Move left
 		wait for 1 us;
+		line_sense <= "000";
 		time <= std_logic_vector(to_unsigned(50000000,29));
 		wait for 20 ns;
 		time <= std_logic_vector(to_unsigned(0,29));
