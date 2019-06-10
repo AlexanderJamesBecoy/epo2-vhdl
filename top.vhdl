@@ -20,7 +20,7 @@ end top;
 architecture structural of top is
 signal line: std_logic_vector(2 downto 0);
 signal md: std_logic_vector(2 downto 0);
-signal miner, mines, ctbr, mrtbr, mltbr, wu, rdu, au: std_logic;
+signal miner, mines, ctbr, mrtbr, mltbr, minetbr, wu, rdu, au: std_logic;
 signal ru, tu: std_logic_vector(7 downto 0);
 signal rdec: std_logic_vector(2 downto 0);
 signal tenc: std_logic_vector(1 downto 0);
@@ -28,6 +28,7 @@ signal bfm, lfm, m: std_logic_vector(3 downto 0);
 signal ml, mr: std_logic_vector(1 downto 0);
 signal mltb, mrtb: std_logic_vector(19 downto 0);
 signal ctb: std_logic_vector(28 downto 0);
+signal minetb: std_logic_vector(16 downto 0);
 signal state: std_logic_vector(4 downto 0);
 begin
 	linebuff: entity work.inputbuffer
@@ -38,7 +39,11 @@ begin
 		port map(clk,reset,mine,miner);
 	
 	minesens: entity work.mine_sense
-		port map(clk,reset,miner,mines);
+		port map(clk,reset,miner,mines,minetbr,minetb);
+
+	mine_tb: entity work.timebase
+		generic map(17)
+		port map(clk,minetbr,minetb);
 	
 	bfollow: entity work.back_follower
 		port map(clk,reset,line,bfm);
