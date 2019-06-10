@@ -31,7 +31,7 @@ begin
 		end if;
 	end process;
 	
-	comb : process
+	comb : process(heading, sensorvect)
 	begin
 	-- All states are just copies of each other with minor adjustments
 	if(heading = stop ) then
