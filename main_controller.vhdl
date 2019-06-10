@@ -27,7 +27,7 @@ architecture behaviour of main_controller is
 type statetype is ( send_B, send_M, send_C, send_C_after_stop,
 	line_follow, line_follow_till_white, back_follow, line_follow_timeout,
 	back_till_white, back_till_black,
-	left_till_time, left_till_black, right_till_time, right_till_black,
+	left_till_white, left_till_black, right_till_white, right_till_black,
 	time_line, time_rot,
 	stop_till_u, stop_forever,
 	read);
@@ -55,9 +55,9 @@ begin
 	"010000100000" when line_follow_timeout,
 	"010010110000" when back_till_white,
 	"010100110000" when back_till_black,
-	"010111000000" when left_till_time,
+	"010111000000" when left_till_white,
 	"011001000000" when left_till_black,
-	"011011010000" when right_till_time,
+	"011011010000" when right_till_white,
 	"011101010000" when right_till_black,
 	"011110000001" when time_line,
 	"100000000001" when time_rot,
@@ -107,15 +107,15 @@ begin
 	when line_follow_timeout => if(timeout = '1') then nextstate <= time_rot; end if;
 	when back_till_white => if(a_white = '1') then nextstate <= back_follow; end if;
 	when back_till_black => if(a_black = '1') then nextstate <= back_follow; end if;
-	when left_till_time => if(timeout = '1') then nextstate <= left_till_black; end if;
+	when left_till_white => if(all_white = '1') then nextstate <= left_till_black; end if;
 	when left_till_black => if(a_black = '1') then nextstate <= line_follow; end if;
-	when right_till_time => if(timeout = '1') then nextstate <= right_till_black; end if;
+	when right_till_white => if(all_white = '1') then nextstate <= right_till_black; end if;
 	when right_till_black => if(a_black = '1') then nextstate <= line_follow; end if;
 	when time_line => nextstate <= line_follow_timeout;
 	when time_rot => 
 		case uart_rec is
-		when "001" =>  nextstate <= left_till_time; --L
-		when "010" =>  nextstate <= right_till_time; --R
+		when "001" =>  nextstate <= left_till_white; --L
+		when "010" =>  nextstate <= right_till_white; --R
 		when others => nextstate <= state;
 		end case;
 	when stop_till_u =>
