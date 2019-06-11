@@ -25,6 +25,6 @@
 
 		sensor <= "000"; -- crossing
 
-		wait for 400 ms;
+		wait for 100 ms;
 
 		sensor <= "010";

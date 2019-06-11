@@ -25,6 +25,6 @@
 
 		sensor <= "111"; -- Edge
 
-		wait for 200 ms;
+		wait for 100 ms;
 
 		sensor <= "010";

@@ -25,6 +25,10 @@
 
 		sensor <= "000"; -- crossing
 
+		wait for 100 ms;
+
+		sensor <= "010"; -- line
+
 		wait for 400 ms;
 
 		sensor <= "111"; -- turn right
