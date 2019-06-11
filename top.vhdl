@@ -52,7 +52,7 @@ begin
 		port map(clk,reset,line,lfm);
 	
 	uart: entity work.uart
-		port map(clk,reset,rx,tx,tu,ru,wu,au);
+		port map(clk,reset,rx,tx,tu,ru,wu,rdu,au);
 	
 	uart_dec: entity work.inst_decode
 		port map(ru,rdec);

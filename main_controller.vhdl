@@ -37,10 +37,10 @@ signal a_black, all_black, a_white, all_white, timeout: std_logic; -- flags for 
 signal control_v: std_logic_vector(11 downto 0);
 begin
 	-- flags
-	a_black <= not(line_sense(0) and line_sense(1) and line_sense(2));
-	all_black <= (not line_sense(0)) and (not line_sense(0)) and (not line_sense(0));
 	a_white <= line_sense(0) or line_sense(1) or line_sense(2);
 	all_white <= line_sense(0) and line_sense(1) and line_sense(2);
+	all_black <= not a_white;
+	a_black <= not all_white;
 	timeout <= '1' when unsigned(time) = 50000000 else '0';
 
 	-- output
@@ -89,7 +89,7 @@ begin
 	when send_M => nextstate <= back_till_white;
 	when send_C => 
 		case uart_rec is
-		when "000" =>  nextstate <= line_follow_till_white; --S
+		when "000" =>  nextstate <= line_follow; --S
 		when "001" =>  nextstate <= time_line; --L
 		when "010" =>  nextstate <= time_line; --R
 		when "011" =>  nextstate <= back_till_white; --U
