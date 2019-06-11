@@ -4,6 +4,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity motorcontrol is
+	generic(pulse_width: integer);
 	port (	clk		: in	std_logic;
 		reset		: in	std_logic;
 		motorvect : in std_logic_vector(1 downto 0);
@@ -37,13 +38,13 @@ begin
 		pwm <= '1';
 		next_state <= pwm_on;
 		if(motorvect(0) = '0') then
-			if(unsigned(count_in) = 75000) then
+			if(unsigned(count_in) = pulse_width*2) then
 				next_state <= pwm_off;
 			end if;
 		else
-			if(motorvect(1) = '0' and unsigned(count_in) = 50000) then
+			if(motorvect(1) = '0' and unsigned(count_in) = pulse_width) then
 				next_state <= pwm_off;
-			elsif(motorvect(1) = '1' and unsigned(count_in) = 100000) then
+			elsif(motorvect(1) = '1' and unsigned(count_in) = pulse_width*3) then
 				next_state <= pwm_off;
 			end if;
 		end if;
@@ -54,6 +55,6 @@ begin
 	end process;
 	
 	-- reset
-	int_reset <= '1' when unsigned(count_in) = 1000000 else '0';
+	int_reset <= '1' when unsigned(count_in) = pulse_width*20 else '0';
 	count_rst <= int_reset or reset;
 end behaviour;

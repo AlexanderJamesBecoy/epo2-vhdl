@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity mine_sense is
+	generic(max_time: integer);
 	port(
 		clk,reset: in std_logic;
 		mine_raw: in std_logic;
@@ -41,7 +42,7 @@ begin
 		when start_time =>
 			time_reset <= '0';
 			mine_out <= '0';
-			if(unsigned(time) = 100000) then nextstate <= timeout;
+			if(unsigned(time) = max_time) then nextstate <= timeout;
 			elsif(mine_raw = '0') then nextstate <= mine_found;
 			end if;
 		when mine_found =>

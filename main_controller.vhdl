@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity main_controller is
+	generic(maxtime:integer);
 	port (
 		clk,reset: in std_logic;
 		motor_drive: out std_logic_vector(2 downto 0);
@@ -41,7 +42,7 @@ begin
 	all_white <= line_sense(0) and line_sense(1) and line_sense(2);
 	all_black <= not a_white;
 	a_black <= not all_white;
-	timeout <= '1' when unsigned(time) = 20000000 else '0';
+	timeout <= '1' when unsigned(time) = maxtime else '0';
 
 	-- output
 	with state select control_v <=
