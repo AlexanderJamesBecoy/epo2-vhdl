@@ -26,7 +26,7 @@ end main_controller;
 
 architecture behaviour of main_controller is
 type statetype is ( send_B, send_M, send_C, send_C_after_stop,
-	line_follow, line_follow_till_white, back_follow, line_follow_timeout,
+	line_follow, line_follow_after_S, line_follow_till_white, back_follow, line_follow_timeout,
 	back_till_white, back_till_black,
 	left_till_white, left_till_black, right_till_white, right_till_black,
 	time_line, time_rot,
@@ -51,20 +51,21 @@ begin
 	"000110000110" when send_C,
 	"001000000110" when send_C_after_stop,
 	"001010010000" when line_follow,
-	"001100010000" when line_follow_till_white,
-	"001110100000" when back_follow,
-	"010000010000" when line_follow_timeout,
-	"010010110000" when back_till_white,
-	"010100110000" when back_till_black,
-	"010111000000" when left_till_white,
-	"011001000000" when left_till_black,
-	"011011010000" when right_till_white,
-	"011101010000" when right_till_black,
-	"011110000001" when time_line,
-	"100000000001" when time_rot,
-	"100010000000" when stop_till_u,
-	"100100000000" when stop_forever,
-	"100110000000" when read;
+	"001100010000" when line_follow_after_S,
+	"001110010000" when line_follow_till_white,
+	"010000100000" when back_follow,
+	"010010010000" when line_follow_timeout,
+	"010100110000" when back_till_white,
+	"010110110000" when back_till_black,
+	"010001000000" when left_till_white,
+	"011011000000" when left_till_black,
+	"011101010000" when right_till_white,
+	"011111010000" when right_till_black,
+	"100000000001" when time_line,
+	"100010000001" when time_rot,
+	"100100000000" when stop_till_u,
+	"100110000000" when stop_forever,
+	"101000000000" when read;
 	
 	(state_out(4), state_out(3), state_out(2), state_out(1), state_out(0),
 	motor_drive(2), motor_drive(1), motor_drive(0),
@@ -90,7 +91,7 @@ begin
 	when send_M => nextstate <= back_till_white;
 	when send_C => 
 		case uart_rec is
-		when "000" =>  nextstate <= line_follow; --S
+		when "000" =>  nextstate <= line_follow_after_S; --S
 		when "001" =>  nextstate <= time_line; --L
 		when "010" =>  nextstate <= time_line; --R
 		when "011" =>  nextstate <= back_till_white; --U
@@ -103,6 +104,8 @@ begin
 		elsif(all_white = '1') then nextstate <= stop_till_u;
 		elsif(all_black = '1') then nextstate <= read; 
 		end if;
+	when line_follow_after_S =>
+		if(a_white = '1') then nextstate <= line_follow; end if;
 	when line_follow_till_white => if(a_white = '1') then nextstate <= line_follow; end if;
 	when back_follow => if(all_black = '1') then nextstate <= read; end if;
 	when line_follow_timeout => if(timeout = '1') then nextstate <= time_rot; end if;
