@@ -1,0 +1,35 @@
+
+		--L=01001100
+		rx <= '0'; --start bit
+		wait for 10.4 ms; -- 1/96 seconds
+		rx <= '0';
+		wait for 10.4 ms; -- 1/96 seconds
+		rx <= '0';
+		wait for 10.4 ms; -- 1/96 seconds
+		rx <= '1';
+		wait for 10.4 ms; -- 1/96 seconds
+		rx <= '1';
+		wait for 10.4 ms; -- 1/96 seconds
+		rx <= '0';
+		wait for 10.4 ms; -- 1/96 seconds
+		rx <= '0';
+		wait for 10.4 ms; -- 1/96 seconds
+		rx <= '1';
+		wait for 10.4 ms; -- 1/96 seconds
+		rx <= '0';
+		wait for 10.4 ms; -- 1/96 seconds
+		rx <= '1'; --stop bit
+		wait for 10.4 ms; -- 1/96 seconds
+
+		wait for 500 ms;
+
+		sensor <= "000"; -- crossing
+
+		wait for 100 ms;
+		sensor <= "010"; -- line
+
+		wait for 400 ms;
+
+		sensor <= "111"; -- turn left
+		wait for 100 ms;
+		sensor <= "010";
