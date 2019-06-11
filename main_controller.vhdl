@@ -111,7 +111,8 @@ begin
 	when line_follow_after_S =>
 		if(a_white = '1') then nextstate <= line_follow; end if;
 	when line_follow_till_white => if(a_white = '1') then nextstate <= line_follow; end if;
-	when back_follow => if(all_black = '1') then nextstate <= read; end if;
+	when back_follow => if(all_black = '1') then nextstate <= read;
+		elsif(mine_sense = '1') then nextstate <= send_M; end if;
 	when line_follow_timeout => if(timeout = '1') then nextstate <= time_rot; end if;
 	when back_till_white => if(a_white = '1') then nextstate <= back_follow; end if;
 	when back_till_black => if(a_black = '1') then nextstate <= back_follow; end if;
