@@ -88,7 +88,11 @@ begin
 	nextstate <= state;
 	case state is
 	when send_B => if(uart_avail = '1') then nextstate <= line_follow; end if;
-	when send_M => nextstate <= back_till_white;
+	when send_M => if(uart_rec = "011") then --U
+		nextstate <= line_follow; -- move foward
+	else
+		nextstate <= back_till_white; -- move backward
+	end if;
 	when send_C => 
 		case uart_rec is
 		when "000" =>  nextstate <= line_follow_after_S; --S
