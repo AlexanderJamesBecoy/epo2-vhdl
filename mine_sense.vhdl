@@ -27,18 +27,20 @@ begin
 		end if;
 	end process;
 
-	comb: process(state, time, mine_raw)
+	comb: process(clk)
 	begin
 		--default next state is current state
 		nextstate <= state;
 		case state is
 		when wait_on_1 =>
 			time_reset <= '1';
+			mine_out <= '0';
 			if(mine_raw = '1') then
 				nextstate <= start_time;
 			end if;
 		when start_time =>
 			time_reset <= '0';
+			mine_out <= '0';
 			if(unsigned(time) = 100000) then nextstate <= timeout;
 			elsif(mine_raw = '0') then nextstate <= mine_found;
 			end if;

@@ -55,5 +55,5 @@ begin
 	
 	-- reset
 	int_reset <= '1' when unsigned(count_in) = 1000000 else '0';
-	count_rst <= int_reset;
+	count_rst <= int_reset or reset;
 end behaviour;
