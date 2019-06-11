@@ -110,11 +110,11 @@ begin
 	end process;
 	
 	with heading select motorvect <=
-		"1000" when straight,
-		"-011" when left,
-		"10-1" when right,
-		"0111" when hardleft,
-		"1101" when hardright,
+		"0111" when straight,
+		"01-0" when left,
+		"-011" when right,
+		"0101" when hardleft,
+		"1111" when hardright,
 		"-0-0" when stop,
 		"-0-0" when others;
 	--N.B. due to the robot's design, right_direction is inverted

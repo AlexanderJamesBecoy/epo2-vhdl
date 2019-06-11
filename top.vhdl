@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity top is
 	generic(F_CPU : integer := 50000); -- clock frequency in kHz
-	                                   -- min is 1, max is 50000
+	                                   -- min is 2, max is 50000
 	port ( clk : in std_logic;
 	       reset : in std_logic;
 			 sensor : in std_logic_vector(2 downto 0);
@@ -65,16 +65,18 @@ begin
 	
 	motormux: entity work.mux8
 		generic map(4)
-		port map("0000",lfm,bfm,"1010","1110","1011","0000","0000",md,m);
+		port map("-0-0",lfm,bfm,"0111","0101","1111","----","----",md,m);
 		-- "000" = stop "001" = line_follower "010" = back_follower
 		-- "011" = back "100" = rotate_left "101" = rotate_right
+		-- 4=left-direction 3=left-move 2=right-direction 1=right-move
+		--N.B. due to the robot's design, right_direction (bit 2) is inverted
 
 	motorl: entity work.motorcontrol
-		generic map(F_CPU)
+		generic map(F_CPU/2)
 		port map(clk,reset,ml,mltb,mltbr,lmotor);
 
 	motorr: entity work.motorcontrol
-		generic map(F_CPU)
+		generic map(F_CPU/2)
 		port map(clk,reset,mr,mrtb,mrtbr,rmotor);
 	
 	ml <= m(3 downto 2);
