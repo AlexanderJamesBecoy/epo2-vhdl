@@ -41,7 +41,7 @@ begin
 	all_white <= line_sense(0) and line_sense(1) and line_sense(2);
 	all_black <= not a_white;
 	a_black <= not all_white;
-	timeout <= '1' when unsigned(time) = 50000000 else '0';
+	timeout <= '1' when unsigned(time) = 20000000 else '0';
 
 	-- output
 	with state select control_v <=
@@ -52,7 +52,7 @@ begin
 	"001010010000" when line_follow,
 	"001100010000" when line_follow_till_white,
 	"001110100000" when back_follow,
-	"010000100000" when line_follow_timeout,
+	"010000010000" when line_follow_timeout,
 	"010010110000" when back_till_white,
 	"010100110000" when back_till_black,
 	"010111000000" when left_till_white,
@@ -80,7 +80,7 @@ begin
 		end if;
 	end process;
 
-	comb: process(state,uart_rec,line_sense,mine_sense,uart_avail,timeout)
+	comb: process(state,uart_rec,line_sense,mine_sense,uart_avail,timeout,a_black,all_black,a_white,all_white)
 	begin
 	-- default is stay in your state
 	nextstate <= state;
