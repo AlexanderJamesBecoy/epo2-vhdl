@@ -15,6 +15,7 @@ signal an : std_logic_vector(3 downto 0);
 signal sseg : std_logic_vector(7 downto 0);
 begin
 	uut: entity work.top
+		generic map(50000)
 		port map(clk,reset,sensor,lmotor,rmotor,tx,rx,mine,sw,btn,led,an,sseg);
 	clk_tick: process
 	begin
