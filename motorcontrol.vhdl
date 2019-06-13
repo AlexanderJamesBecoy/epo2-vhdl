@@ -38,13 +38,13 @@ begin
 		pwm <= '1';
 		next_state <= pwm_on;
 		if(motorvect(0) = '0') then
-			if(unsigned(count_in) = pulse_width*2) then
+			if(unsigned(count_in) = pulse_width*3) then
 				next_state <= pwm_off;
 			end if;
 		else
-			if(motorvect(1) = '0' and unsigned(count_in) = pulse_width) then
+			if(motorvect(1) = '0' and unsigned(count_in) = pulse_width*2) then
 				next_state <= pwm_off;
-			elsif(motorvect(1) = '1' and unsigned(count_in) = pulse_width*3) then
+			elsif(motorvect(1) = '1' and unsigned(count_in) = pulse_width*4) then
 				next_state <= pwm_off;
 			end if;
 		end if;
