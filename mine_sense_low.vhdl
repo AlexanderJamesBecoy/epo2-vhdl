@@ -28,7 +28,7 @@ begin
 		end if;
 	end process;
 
-	comb: process(clk)
+	comb: process(state,mine_raw,time)
 	begin
 		--default next state is current state
 		nextstate <= state;

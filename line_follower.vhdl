@@ -33,6 +33,8 @@ begin
 	
 	comb : process(heading, sensorvect)
 	begin
+	--default
+	nextheading <= stop;
 	-- All states are just copies of each other with minor adjustments
 	if(heading = stop ) then
 	case sensorvect is

@@ -33,6 +33,8 @@ begin
 	
 	comb : process(heading, sensorvect)
 	begin
+	-- default
+	nextheading <= stop;
 	-- All states are just copies of each other with minor adjustments
 	if(heading = stop ) then
 	case sensorvect is
@@ -68,7 +70,7 @@ begin
 		when "101" => nextheading <= straight;
 		when "110" => nextheading <= hardright;
 		--when "111" => nextheading <= stop;
-		when others => nextheading <= stop;
+		when others => nextheading <= hardright;
 	end case;
 	elsif(heading = left ) then
 	case sensorvect is
@@ -92,7 +94,7 @@ begin
 		when "101" => nextheading <= straight;
 		when "110" => nextheading <= hardright;
 		--when "111" => nextheading <= stop;
-		when others => nextheading <= stop;
+		when others => nextheading <= hardleft;
 	end case;
 	elsif(heading = straight ) then
 	case sensorvect is

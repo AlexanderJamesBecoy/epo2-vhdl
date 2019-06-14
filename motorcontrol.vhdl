@@ -31,7 +31,7 @@ begin
 	end if;
 	end process;
 	
-	comb : process(state, count_in)
+	comb : process(state, count_in, motorvect)
 	begin
 	case state is
 	when pwm_on =>
