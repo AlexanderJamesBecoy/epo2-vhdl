@@ -1,9 +1,9 @@
 
 		wait for 100 ms;
 
-		mine <= '1'; -- Mine detected
+		mine <= '0'; -- Mine detected
 		wait for 2.3 ms;
-		mine <= '0';
+		mine <= '1';
 
 		wait for 100 ms;
 

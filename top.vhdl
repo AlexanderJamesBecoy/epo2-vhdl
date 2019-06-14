@@ -40,7 +40,7 @@ begin
 	minebuf: entity work.inputbuffer1
 		port map(clk,reset,mine,miner);
 	
-	minesens: entity work.mine_sense
+	minesens: entity work.mine_sense_low
 		generic map(F_CPU*2,F_CPU/5) -- nominal T: 2ms, deviation: 200 us
 		port map(clk,reset,miner,mines,mineb,minetbr,minetb);
 
@@ -101,7 +101,7 @@ begin
 	rdu <= '0'; -- controller doesn't care about setting the read flag
 
 
-	led <= state & "000";
+	led <= state & '0' & mines & mineb;
 	an <= (others => '0');
 	sseg <= (others => '0');
 end structural;

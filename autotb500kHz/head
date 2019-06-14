@@ -31,3 +31,4 @@ begin
 		wait for 100 us;
 		reset <= '0';
 		sensor <= "010";
+		mine <= '1';
