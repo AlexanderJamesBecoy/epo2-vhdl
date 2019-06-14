@@ -18,14 +18,14 @@ entity main_controller is
 		-- "000" = S "001" = L "010" = R "011" = U "100" = Q
 		line_sense: in std_logic_vector(2 downto 0);
 		-- left is MSB
-		mine_sense, uart_avail: in std_logic;
+		mine_sense, mine_back, uart_avail: in std_logic;
 		time: in std_logic_vector(28 downto 0)
 
 	);
 end main_controller;
 
 architecture behaviour of main_controller is
-type statetype is ( send_B, send_M, send_C, send_C_after_stop,
+type statetype is ( send_B, send_M, send_M_back, send_C, send_C_after_stop,
 	line_follow, line_follow_after_S, line_follow_till_white, back_follow, line_follow_timeout,
 	back_till_white, back_till_black,
 	left_till_white, left_till_black, right_till_white, right_till_black,
@@ -48,6 +48,7 @@ begin
 	with state select control_v <=
 	"000010000010" when send_B,
 	"000100001010" when send_M,
+	"000100001010" when send_M_back,
 	"000110000110" when send_C,
 	"001000000110" when send_C_after_stop,
 	"001010010000" when line_follow,
@@ -82,17 +83,14 @@ begin
 		end if;
 	end process;
 
-	comb: process(state,uart_rec,line_sense,mine_sense,uart_avail,timeout,a_black,all_black,a_white,all_white)
+	comb: process(state,uart_rec,line_sense,mine_sense,uart_avail,timeout,a_black,all_black,a_white,all_white,mine_back)
 	begin
 	-- default is stay in your state
 	nextstate <= state;
 	case state is
 	when send_B => if(uart_avail = '1') then nextstate <= line_follow; end if;
-	when send_M => if(uart_rec = "011") then --U
-		nextstate <= line_follow; -- move foward
-	else
-		nextstate <= back_till_white; -- move backward
-	end if;
+	when send_M => nextstate <= back_till_white; -- move backward
+	when send_M_back => nextstate <= line_follow; -- move foward
 	when send_C => 
 		case uart_rec is
 		when "000" =>  nextstate <= line_follow_after_S; --S
@@ -112,7 +110,7 @@ begin
 		if(a_white = '1') then nextstate <= line_follow; end if;
 	when line_follow_till_white => if(a_white = '1') then nextstate <= line_follow; end if;
 	when back_follow => if(all_black = '1') then nextstate <= read;
-		elsif(mine_sense = '1') then nextstate <= send_M; end if;
+		elsif(mine_back = '1') then nextstate <= send_M_back; end if;
 	when line_follow_timeout => if(timeout = '1') then nextstate <= time_rot; end if;
 	when back_till_white => if(a_white = '1') then nextstate <= back_follow; end if;
 	when back_till_black => if(a_black = '1') then nextstate <= back_follow; end if;

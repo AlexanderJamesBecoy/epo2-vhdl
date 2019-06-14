@@ -2,7 +2,7 @@
 		wait for 100 ms;
 
 		mine <= '1'; -- Mine detected
-		wait for 1.7 ms;
+		wait for 2.3 ms;
 		mine <= '0';
 
 		wait for 100 ms;

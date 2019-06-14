@@ -22,7 +22,7 @@ end top;
 architecture structural of top is
 signal line: std_logic_vector(2 downto 0);
 signal md: std_logic_vector(2 downto 0);
-signal miner, mines, ctbr, mrtbr, mltbr, minetbr, wu, rdu, au: std_logic;
+signal miner, mines, mineb, ctbr, mrtbr, mltbr, minetbr, wu, rdu, au: std_logic;
 signal ru, tu: std_logic_vector(7 downto 0);
 signal rdec: std_logic_vector(2 downto 0);
 signal tenc: std_logic_vector(1 downto 0);
@@ -41,8 +41,8 @@ begin
 		port map(clk,reset,mine,miner);
 	
 	minesens: entity work.mine_sense
-		generic map(F_CPU*2)
-		port map(clk,reset,miner,mines,minetbr,minetb);
+		generic map(F_CPU*2,F_CPU/5) -- nominal T: 2ms, deviation: 200 us
+		port map(clk,reset,miner,mines,mineb,minetbr,minetb);
 
 	mine_tb: entity work.timebase
 		generic map(17)
@@ -96,9 +96,9 @@ begin
 	
 	mc: entity work.main_controller
 		generic map(F_CPU*400)
-		port map(clk,reset,md,tenc,wu,ctbr,state,rdec,line,mines,au,ctb);
+		port map(clk,reset,md,tenc,wu,ctbr,state,rdec,line,mines,mineb,au,ctb);
 	
-	rdu <= '0'; -- controller doesn't care about the flag
+	rdu <= '0'; -- controller doesn't care about setting the read flag
 
 
 	led <= state & "000";
